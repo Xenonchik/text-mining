@@ -13,19 +13,19 @@ import edu.uci.ics.crawler4j.url.WebURL;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-public class LirycsCrawler extends WebCrawler {
+public class LivejournalCrawler extends WebCrawler {
 
 	private final static Pattern FILTERS = Pattern
 			.compile(".*(\\.(css|js|bmp|gif|jpe?g"
 					+ "|png|tiff?|mid|mp2|mp3|mp4"
 					+ "|wav|avi|mov|mpeg|ram|m4v|pdf"
 					+ "|rm|smil|wmv|swf|wma|zip|rar|gz))$");
-	
+
 	Map<String, WebURL> visitedUrls = new HashMap<>();
 
     SongDAO songDAO;
 
-    public LirycsCrawler() {
+    public LivejournalCrawler() {
             songDAO = new SongDAO();
     }
 
@@ -36,7 +36,7 @@ public class LirycsCrawler extends WebCrawler {
 	@Override
 	public boolean shouldVisit(WebURL url) {
         String href = url.getURL().toLowerCase();
-        if(!href.startsWith("http://megalyrics.ru/lyric/ariia/")) return false;
+        if(!href.startsWith("http://feministki.livejournal.com/")) return false;
 		if((href.length() - href.replace(":", "").length()) > 1) return false;
 		if(this.visitedUrls.containsKey(url.getURL())) {
 			return false;
@@ -54,9 +54,11 @@ public class LirycsCrawler extends WebCrawler {
     @Override
     public void visit(Page page) {
         String url = page.getWebURL().getURL();
-        System.out.println("URL: " + url);
+        if(!Pattern.compile("http\\:\\/\\/feministki\\.livejournal\\.com\\/\\d+\\.html").matcher(url).matches()){
+			return;
+		}
         try {
-            Thread.sleep(2000L);
+            Thread.sleep(1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
