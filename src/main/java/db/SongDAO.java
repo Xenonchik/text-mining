@@ -11,7 +11,7 @@ public class SongDAO {
 
     MongoClient mongoClient;
     DB db;
-    DBCollection coll;
+    protected DBCollection coll;
 
     public SongDAO() {
         try {
@@ -23,8 +23,8 @@ public class SongDAO {
         coll = db.getCollection("songs");
     }
 
-    public void saveSong(BasicDBObject song){
-        coll.insert(song);
+    public void save(BasicDBObject entity){
+        coll.insert(entity);
     }
 
     public DBCursor getWordsCounts() {
@@ -33,7 +33,7 @@ public class SongDAO {
         return cursor;
     }
 
-    public DBCursor getSongs() {
+    public DBCursor getAll() {
         return coll.find();
     }
 }

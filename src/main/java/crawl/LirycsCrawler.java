@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import com.mongodb.BasicDBObject;
-import db.SongAnalyser;
+import db.TextAnalyser;
 import db.SongDAO;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
@@ -74,9 +74,9 @@ public class LirycsCrawler extends WebCrawler {
                 // save to db
 
                 BasicDBObject song = new BasicDBObject("name", songName)
-                        .append("text", songText).append("wordsCount", SongAnalyser.countWordsInText(songText));
+                        .append("text", songText).append("wordsCount", TextAnalyser.countWordsInText(songText));
 
-                songDAO.saveSong(song);
+                songDAO.save(song);
             }
         }
     }

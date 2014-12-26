@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import com.mongodb.BasicDBObject;
-import db.SongAnalyser;
+import db.LjDAO;
 import db.SongDAO;
+import db.TextAnalyser;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
@@ -23,10 +24,10 @@ public class LivejournalCrawler extends WebCrawler {
 
 	Map<String, WebURL> visitedUrls = new HashMap<>();
 
-    SongDAO songDAO;
+    SongDAO itemDAO;
 
     public LivejournalCrawler() {
-            songDAO = new SongDAO();
+            itemDAO = new LjDAO();
     }
 
 	/**
@@ -69,16 +70,17 @@ public class LivejournalCrawler extends WebCrawler {
 
             // parse html
             Document doc = Jsoup.parse(html);
-            String songName = doc.select("h3.header").first().text();
-            String songText = doc.select("div.text_inner").first().text();
+			String date = doc.select("div#content h2").first().text();
+			String title = doc.select("div.H3Holder h3 span em").first().text();
+			String text = doc.select("div.H3Holder p").first().text();
 
-            if (songText != null && songText != "") {
+            if (text != null && text != "") {
                 // save to db
 
-                BasicDBObject song = new BasicDBObject("name", songName)
-                        .append("text", songText).append("wordsCount", SongAnalyser.countWordsInText(songText));
+                BasicDBObject item = new BasicDBObject("date", date).append("title", title)
+                        .append("text", text).append("wordsCount", TextAnalyser.countWordsInText(title));
 
-                songDAO.saveSong(song);
+                itemDAO.save(item);
             }
         }
     }

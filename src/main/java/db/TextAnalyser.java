@@ -15,7 +15,7 @@ import com.mongodb.*;
  * @version 3.6.7
  * @since 3.6.7
  */
-public class SongAnalyser {
+public class TextAnalyser {
 
     static public Map<String, Integer> countWordsInText(String text) {
         Map<String, Integer> wordsCount = new LinkedHashMap<>();

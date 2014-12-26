@@ -1,7 +1,7 @@
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import crawl.Controller;
-import db.SongAnalyser;
+import db.TextAnalyser;
 import db.SongDAO;
 import org.carrot2.clustering.lingo.LingoClusteringAlgorithm;
 import org.carrot2.core.Cluster;
@@ -36,7 +36,7 @@ public class TMApp {
                 ControllerFactory.createSimple();//<co id="crt2.controller.creation"/>
         documents = new ArrayList<Document>();
 
-        DBCursor cursor = new SongDAO().getSongs();
+        DBCursor cursor = new SongDAO().getAll();
         while (cursor.hasNext()) {
             DBObject song = cursor.next();
             String name = (String) song.get("name");
@@ -67,7 +67,7 @@ public class TMApp {
 
     public static void parseAndGetTotalWordsCount(String url) throws Exception {
         Controller.parse(url);
-        SongAnalyser analyser = new SongAnalyser();
+        TextAnalyser analyser = new TextAnalyser();
         Map<String, Integer> wordsCount = analyser.getWordsCount();
 
         Scanner s = new Scanner( Paths.get(TMApp.class.getResource("stopwords.txt").toURI()).toFile() );
@@ -79,7 +79,7 @@ public class TMApp {
         }
         s.close();
 
-        SongAnalyser.ValueComparator bvc =  new SongAnalyser.ValueComparator(wordsCount);
+        TextAnalyser.ValueComparator bvc =  new TextAnalyser.ValueComparator(wordsCount);
         TreeMap<String,Integer> sorted_map = new TreeMap<>(bvc);
         sorted_map.putAll(wordsCount);
 
