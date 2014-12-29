@@ -22,9 +22,9 @@ import java.util.Map.Entry;
  */
 public class TMApp {
 	public static void main(String[] args) throws Exception {
-        String url = "http://megalyrics.ru/songs/ariia.htm";
-        //parseAndGetTotalWordsCount(url);
-       clustWithCarrot();
+        String url = "http://feministki.livejournal.com/";
+        parseAndGetTotalWordsCount(url);
+       //clustWithCarrot();
 
 	}
 
