@@ -33,7 +33,7 @@ public class Controller {
              * Start the crawl. This is a blocking operation, meaning that your code
              * will reach the line after this only when crawling is finished.
              */
-            controller.start(LirycsCrawler.class, numberOfCrawlers);
+            controller.start(LivejournalCrawler.class, numberOfCrawlers);
 
     }
 }

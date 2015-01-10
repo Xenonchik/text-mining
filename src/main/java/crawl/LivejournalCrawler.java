@@ -24,7 +24,7 @@ public class LivejournalCrawler extends WebCrawler {
 
 	Map<String, WebURL> visitedUrls = new HashMap<>();
 
-    SongDAO itemDAO;
+    LjDAO itemDAO;
 
     public LivejournalCrawler() {
             itemDAO = new LjDAO();
@@ -37,8 +37,14 @@ public class LivejournalCrawler extends WebCrawler {
 	@Override
 	public boolean shouldVisit(WebURL url) {
         String href = url.getURL().toLowerCase();
-        if(!href.startsWith("http://feministki.livejournal.com/")) return false;
+		href = Pattern.compile("\\#,+$").matcher(href).replaceAll("");
+		if(!Pattern.compile("^http\\:\\/\\/feministki\\.livejournal\\.com\\/\\d+\\.html$").matcher(href).matches() &&
+				!Pattern.compile("http\\:\\/\\/feministki\\.livejournal\\.com\\/\\?skip\\=\\d+").matcher(href).matches()){
+			return false;
+		}
+
 		if((href.length() - href.replace(":", "").length()) > 1) return false;
+
 		if(this.visitedUrls.containsKey(url.getURL())) {
 			return false;
 		} else {
@@ -55,9 +61,12 @@ public class LivejournalCrawler extends WebCrawler {
     @Override
     public void visit(Page page) {
         String url = page.getWebURL().getURL();
-        if(!Pattern.compile("http\\:\\/\\/feministki\\.livejournal\\.com\\/\\d+\\.html").matcher(url).matches()){
+		System.out.println(url);
+
+		if(!Pattern.compile("http\\:\\/\\/feministki\\.livejournal\\.com\\/\\d+\\.html").matcher(url).matches()){
 			return;
 		}
+
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException e) {
@@ -72,13 +81,13 @@ public class LivejournalCrawler extends WebCrawler {
             Document doc = Jsoup.parse(html);
 			String date = doc.select("div#content h2").first().text();
 			String title = doc.select("div.H3Holder h3 span em").first().text();
-			String text = doc.select("div.H3Holder p").first().text();
+			String text = doc.select("div.H3Holder").text();
 
             if (text != null && text != "") {
                 // save to db
 
-                BasicDBObject item = new BasicDBObject("date", date).append("title", title)
-                        .append("text", text).append("wordsCount", TextAnalyser.countWordsInText(title));
+                BasicDBObject item = new BasicDBObject("date", date).append("title", title).append("url", url)
+                        .append("text", text).append("wordsCount", TextAnalyser.countWordsInText(text));
 
                 itemDAO.save(item);
             }

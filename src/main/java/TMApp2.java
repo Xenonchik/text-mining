@@ -1,11 +1,13 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import crawl.Controller;
+import db.LjDAO;
 import db.SongDAO;
+import db.TextAnalyser;
 import ncrawl.Crawler;
 import ncrawl.LjCrawler;
 import org.carrot2.clustering.lingo.LingoClusteringAlgorithm;
@@ -21,11 +23,10 @@ import org.carrot2.core.ProcessingResult;
  * @version 3.6.7
  * @since 3.6.7
  */
-public class TMApp {
+public class TMApp2 {
 	public static void main(String[] args) throws Exception {
-        String url = "http://feministki.livejournal.com/";
-        newCrawl(url);
-
+		//totalWordsCount();
+		clustWithCarrot();
 	}
 
 	public static void newCrawl(String url) {
@@ -45,11 +46,11 @@ public class TMApp {
                 ControllerFactory.createSimple();//<co id="crt2.controller.creation"/>
         documents = new ArrayList<Document>();
 
-        DBCursor cursor = new SongDAO().getAll();
+        DBCursor cursor = new LjDAO().getAll();
         while (cursor.hasNext()) {
-            DBObject song = cursor.next();
-            String name = (String) song.get("name");
-            String text = (String) song.get("text");
+            DBObject item = cursor.next();
+            String name = (String) item.get("title");
+            String text = (String) item.get("text");
             Document doc = new Document(name, text,
                     "file://foo_" + name + ".txt");
             documents.add(doc);
@@ -74,29 +75,30 @@ public class TMApp {
 
     }
 
-    public static void parseAndGetTotalWordsCount(String url) throws Exception {
-        Controller.parse(url);
-//        TextAnalyser analyser = new TextAnalyser();
-//        Map<String, Integer> wordsCount = analyser.getWordsCount();
-//
-//        Scanner s = new Scanner( Paths.get(TMApp.class.getResource("stopwords.txt").toURI()).toFile() );
-//        while (s.hasNext()){
-//            String word = s.next();
-//            if(wordsCount.containsKey(word)) {
-//                wordsCount.remove(word);
-//            }
-//        }
-//        s.close();
-//
-//        TextAnalyser.ValueComparator bvc =  new TextAnalyser.ValueComparator(wordsCount);
-//        TreeMap<String,Integer> sorted_map = new TreeMap<>(bvc);
-//        sorted_map.putAll(wordsCount);
-//
-//        int count = 1;
-//        for(Entry<String, Integer> entry : sorted_map.entrySet()) {
-//            System.out.println(count + " " + entry.getKey() + ": " + entry.getValue());
-//            count++;
-//        }
+    public static void totalWordsCount() throws Exception {
+
+        TextAnalyser analyser = new TextAnalyser();
+        Map<String, Integer> wordsCount = analyser.getWordsCount();
+
+        Scanner s = new Scanner( Paths.get(TMApp.class.getResource("stopwords-ru.txt").toURI()).toFile() );
+        while (s.hasNext()){
+            String word = s.next();
+            if(wordsCount.containsKey(word)) {
+                wordsCount.remove(word);
+            }
+        }
+        s.close();
+
+        TextAnalyser.ValueComparator bvc =  new TextAnalyser.ValueComparator(wordsCount);
+        TreeMap<String,Integer> sorted_map = new TreeMap<>(bvc);
+        sorted_map.putAll(wordsCount);
+
+        int count = 1;
+        for(Entry<String, Integer> entry : sorted_map.entrySet()) {
+            System.out.println(count + " " + entry.getKey() + ": " + entry.getValue());
+            count++;
+			if(count > 100) break;
+        }
     }
 
 }

@@ -1,11 +1,11 @@
 package db;
 
-import java.net.UnknownHostException;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 import com.mongodb.*;
 
 /**
@@ -22,7 +22,7 @@ public class TextAnalyser {
         Scanner scan = new Scanner(text);
         while (scan.hasNext()) {
             String word = scan.next().toLowerCase();
-            word = word.replace(".", "").replace(",", "").replace("!", "").replace("?", "");
+            word = word.replace(".", "").replace(",", "").replace("!", "").replace("?", "").replace("$", "");
             if (wordsCount.containsKey(word)) {
                 wordsCount.put(word, wordsCount.get(word) + 1);
             } else wordsCount.put(word, 1);
@@ -30,19 +30,24 @@ public class TextAnalyser {
         return wordsCount;
     }
 
+	private Pattern pattern = Pattern.compile("[a-zA-ZА-Яа-я]");
+
 
 	public Map<String, Integer> getWordsCount() {
 		Map<String, Integer> totalWordsCount = new LinkedHashMap<>();
 
-        SongDAO dao = new SongDAO();
+		LjDAO dao = new LjDAO();
 		DBCursor cursor = dao.getWordsCounts();
 
 		while (cursor.hasNext()) {
 			Map<String, Integer> wordsCount = (Map<String, Integer>) cursor.next().get("wordsCount");
 			for(Entry<String, Integer> entry : wordsCount.entrySet()) {
+				if(entry.getKey().length() < 2) continue;
 				if (totalWordsCount.containsKey(entry.getKey())) {
 					totalWordsCount.put(entry.getKey(), totalWordsCount.get(entry.getKey()) + entry.getValue());
-				} else totalWordsCount.put(entry.getKey(), entry.getValue());
+				} else {
+					totalWordsCount.put(entry.getKey(), entry.getValue());
+				}
 			}
 		}
 
